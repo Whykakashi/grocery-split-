@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Grocery Split (₹)</title>
+  <style>
+    :root {
+      --primary: #16a34a;
+      --primary-dark: #15803d;
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --danger: #dc2626;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 40px; }
+    .container { max-width: 520px; margin: 0 auto; padding: 16px; }
+    
+    .card { background: var(--card); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    h1, h2, h3 { margin: 0 0 12px 0; }
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.1rem; color: var(--text); }
+    .muted { color: var(--muted); font-size: 0.85rem; }
+    .hidden { display: none !important; }
+
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .topbar-user { font-size: 0.85rem; color: var(--muted); }
+
+    input, button { width: 100%; padding: 12px; border-radius: 10px; font-size: 1rem; margin-bottom: 10px; }
+    input { border: 1px solid var(--border); background: #fff; }
+    input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+    button { border: none; background: var(--primary); color: #fff; font-weight: 600; cursor: pointer; }
+    button:active { background: var(--primary-dark); }
+    .btn-secondary { background: #e5e7eb; color: var(--text); }
+    .btn-small { width: auto; padding: 6px 12px; font-size: 0.85rem; margin: 0; }
+    .btn-danger { background: #fee2e2; color: var(--danger); }
+
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .stat-box { background: #f9fafb; border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+    .stat-label { font-size: 0.8rem; color: var(--muted); }
+    .stat-value { font-size: 1.3rem; font-weight: 700; margin-top: 4px; color: var(--primary-dark); }
+
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .row:last-child { border-bottom: none; }
+    .badge-pos { color: #15803d; font-weight: 600; font-size: 0.85rem; }
+    .badge-neg { color: #dc2626; font-weight: 600; font-size: 0.85rem; }
+    .settlement-item { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; font-weight: 500; }
+    .expense-meta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .expense-right { text-align: right; display: flex; align-items: center; gap: 10px; }
+    .amount-text { font-weight: 700; font-size: 1rem; }
+    .error-msg { color: var(--danger); font-size: 0.85rem; margin-bottom: 10px; }
+    .row-flex { display: flex; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-view" class="card">
+      <h1 id="auth-title">🛒 Grocery Split</h1>
+      <p class="muted" style="margin-bottom: 16px;">Log in to track & split monthly groceries</p>
+      <div id="auth-error" class="error-msg hidden"></div>
+
+      <input type="text" id="auth-name" placeholder="Your Name (e.g., Rahul)" class="hidden" />
+      <input type="email" id="auth-email" placeholder="Email address" />
+      <input type="password" id="auth-password" placeholder="Password (min 6 chars)" />
+
+      <button id="auth-submit-btn">Log In</button>
+      <button id="auth-toggle-btn" class="btn-secondary">Need an account? Sign Up</button>
+    </div>
+
+    <!-- MAIN APP SCREEN -->
+    <div id="app-view" class="hidden">
+      <div class="topbar">
+        <div>
+          <h1 style="margin:0;">🛒 Grocery Split</h1>
+          <div class="topbar-user">Logged in as <strong id="current-user-name"></strong></div>
+        </div>
+        <button id="logout-btn" class="btn-secondary btn-small">Logout</button>
+      </div>
+
+      <!-- Month Selector -->
+      <div class="card" style="padding: 12px 16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+          <label for="month-picker" style="font-weight:600;">Month:</label>
+          <input type="month" id="month-picker" style="margin:0; width:auto; flex:1;" />
+        </div>
+      </div>
+
+      <!-- Add Expense Form -->
+      <div class="card">
+        <h2>➕ Add Grocery Item</h2>
+        <input type="text" id="item-name" placeholder="What did you buy? (e.g., Milk, Sabzi)" />
+        <div class="row-flex">
+          <input type="number" id="item-amount" placeholder="Amount (₹)" min="1" step="0.01" />
+          <input type="date" id="item-date" />
+        </div>
+        <button id="add-expense-btn">Add Expense</button>
+      </div>
+
+      <!-- Monthly Summary & Split -->
+      <div class="card">
+        <h2>📊 Monthly Summary</h2>
+        <div class="summary-grid">
+          <div class="stat-box">
+            <div class="stat-label">Total Group Spend</div>
+            <div class="stat-value" id="total-spend">₹0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Per Person Share</div>
+            <div class="stat-value" id="per-person-share">₹0</div>
+          </div>
+        </div>
+
+        <h3 style="font-size:0.95rem; margin-top:12px;">Spent by Each Person</h3>
+        <div id="person-breakdown" class="muted">Loading...</div>
+
+        <h3 style="font-size:0.95rem; margin-top:16px;">🤝 Who Owes Whom</h3>
+        <div id="settlement-list" class="muted">All settled up!</div>
+      </div>
+
+      <!-- Expense History -->
+      <div class="card">
+        <h2>🧾 Monthly History</h2>
+        <div id="expense-list" class="muted">No expenses for this month yet.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      signOut, onAuthStateChanged, updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, deleteDoc, doc, setDoc,
+      query, where, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHG_agZKsFvTKp_2N7b62y8aSwpEc06QA",
+      authDomain: "grocery-split-696a5.firebaseapp.com",
+      projectId: "grocery-split-696a5",
+      storageBucket: "grocery-split-696a5.firebasestorage.app",
+      messagingSenderId: "430038827668",
+      appId: "1:430038827668:web:d7d6dd04646c06762b6a81"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let isSignUp = false;
+    let currentUser = null;
+    let allUsers = [];
+    let monthExpenses = [];
+    let unsubscribeExpenses = null;
+    let unsubscribeUsers = null;
+
+    const authView = document.getElementById("auth-view");
+    const appView = document.getElementById("app-view");
+    const authName = document.getElementById("auth-name");
+    const authEmail = document.getElementById("auth-email");
+    const authPassword = document.getElementById("auth-password");
+    const authSubmitBtn = document.getElementById("auth-submit-btn");
+    const authToggleBtn = document.getElementById("auth-toggle-btn");
+    const authError = document.getElementById("auth-error");
+
+    const currentUserNameEl = document.getElementById("current-user-name");
+    const logoutBtn = document.getElementById("logout-btn");
+    const monthPicker = document.getElementById("month-picker");
+    const itemNameInput = document.getElementById("item-name");
+    const itemAmountInput = document.getElementById("item-amount");
+    const itemDateInput = document.getElementById("item-date");
+    const addExpenseBtn = document.getElementById("add-expense-btn");
+
+    const formatINR = (num) => "₹" + Number(num || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+    const escapeHtml = (str) => String(str).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+
+    function getTodayString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    const todayStr = getTodayString();
+    monthPicker.value = todayStr.slice(0, 7);
+    itemDateInput.value = todayStr;
+
+    authToggleBtn.addEventListener("click", () => {
+      isSignUp = !isSignUp;
+      authName.classList.toggle("hidden", !isSignUp);
+      authSubmitBtn.textContent = isSignUp ? "Create Account" : "Log In";
+      authToggleBtn.textContent = isSignUp ? "Already have an account? Log In" : "Need an account? Sign Up";
+      authError.classList.add("hidden");
+    });
+
+    authSubmitBtn.addEventListener("click", async () => {
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      const name = authName.value.trim();
+      authError.classList.add("hidden");
+
+      try {
+        if (isSignUp) {
+          if (!name) throw new Error("Please enter your name.");
+          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          await updateProfile(cred.user, { displayName: name });
+          await setDoc(doc(db, "users", cred.user.uid), { uid: cred.user.uid, name, email });
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+        }
+      } catch (err) {
+        authError.textContent = err.message.replace("Firebase: ", "");
+        authError.classList.remove("hidden");
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => signOut(auth));
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const displayName = user.displayName || user.email.split("@")[0];
+        currentUserNameEl.textContent = displayName;
+
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          name: displayName,
+          email: user.email
+        }, { merge: true });
+
+        authView.classList.add("hidden");
+        appView.classList.remove("hidden");
+
+        listenToUsers();
+        listenToMonthExpenses(monthPicker.value);
+      } else {
+        currentUser = null;
+        if (unsubscribeExpenses) unsubscribeExpenses();
+        if (unsubscribeUsers) unsubscribeUsers();
+        appView.classList.add("hidden");
+        authView.classList.remove("hidden");
+      }
+    });
+
+    function listenToUsers() {
+      if (unsubscribeUsers) unsubscribeUsers();
+      unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
+        allUsers = snap.docs.map(d => d.data());
+        renderDashboard();
+      });
+    }
+
+    function listenToMonthExpenses(monthStr) {
+      if (unsubscribeExpenses) unsubscribeExpenses();
+      const q = query(collection(db, "expenses"), where("month", "==", monthStr));
+      unsubscribeExpenses = onSnapshot(q, (snap) => {
+        monthExpenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        monthExpenses.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        renderDashboard();
+      });
+    }
+
+    monthPicker.addEventListener("change", () => {
+      listenToMonthExpenses(monthPicker.value);
+    });
+
+    addExpenseBtn.addEventListener("click", async () => {
+      const item = itemNameInput.value.trim();
+      const amount = parseFloat(itemAmountInput.value);
+      const date = itemDateInput.value || getTodayString();
+
+      if (!item || isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid item name and amount.");
+        return;
+      }
+
+      addExpenseBtn.disabled = true;
+      try {
+        await addDoc(collection(db, "expenses"), {
+          item,
+          amount,
+          date,
+          month: date.slice(0, 7),
+          uid: currentUser.uid,
+          userName: currentUser.displayName || currentUser.email.split("@")[0],
+          createdAt: serverTimestamp()
+        });
+        itemNameInput.value = "";
+        itemAmountInput.value = "";
+      } catch (err) {
+        alert("Error adding expense: " + err.message);
+      } finally {
+        addExpenseBtn.disabled = false;
+      }
+    });
+
+    window.deleteExpense = async (id) => {
+      if (!confirm("Delete this entry?")) return;
+      await deleteDoc(doc(db, "expenses", id));
+    };
+
+    function renderDashboard() {
+      const peopleMap = {};
+      allUsers.forEach(u => { peopleMap[u.uid] = { name: u.name, spent: 0 }; });
+      monthExpenses.forEach(e => {
+        if (!peopleMap[e.uid]) peopleMap[e.uid] = { name: e.userName, spent: 0 };
+        peopleMap[e.uid].spent += Number(e.amount || 0);
+      });
+
+      const people = Object.values(peopleMap);
+      const numPeople = Math.max(people.length, 1);
+      const totalSpend = monthExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+      const share = totalSpend / numPeople;
+
+      document.getElementById("total-spend").textContent = formatINR(totalSpend);
+      document.getElementById("per-person-share").textContent = formatINR(share);
+
+      const breakdownEl = document.getElementById("person-breakdown");
+      if (people.length === 0) {
+        breakdownEl.innerHTML = `<div class="muted">No members found.</div>`;
+      } else {
+        breakdownEl.innerHTML = people.map(p => {
+          const diff = p.spent - share;
+          let statusHtml = `<span class="muted">Settled</span>`;
+          if (diff > 0.5) statusHtml = `<span class="badge-pos">Gets back ${formatINR(diff)}</span>`;
+          else if (diff < -0.5) statusHtml = `<span class="badge-neg">Owes ${formatINR(Math.abs(diff))}</span>`;
+          return `
+            <div class="row">
+              <div>
+                <strong>${escapeHtml(p.name)}</strong>
+                <div class="expense-meta">${statusHtml}</div>
+              </div>
+              <div class="amount-text">${formatINR(p.spent)}</div>
+            </div>`;
+        }).join("");
+      }
+
+      const debtors = [];
+      const creditors = [];
+      people.forEach(p => {
+        const balance = p.spent - share;
+        if (balance < -0.5) debtors.push({ name: p.name, amount: Math.abs(balance) });
+        else if (balance > 0.5) creditors.push({ name: p.name, amount: balance });
+      });
+
+      debtors.sort((a, b) => b.amount - a.amount);
+      creditors.sort((a, b) => b.amount - a.amount);
+
+      const settlements = [];
+      let i = 0, j = 0;
+      while (i < debtors.length && j < creditors.length) {
+        const payAmount = Math.min(debtors[i].amount, creditors[j].amount);
+        if (payAmount >= 0.5) {
+          settlements.push(`<strong>${escapeHtml(debtors[i].name)}</strong> pays <strong>${escapeHtml(creditors[j].name)}</strong> ${formatINR(payAmount)}`);
+        }
+        debtors[i].amount -= payAmount;
+        creditors[j].amount -= payAmount;
+        if (debtors[i].amount < 0.5) i++;
+        if (creditors[j].amount < 0.5) j++;
+      }
+
+      const settlementEl = document.getElementById("settlement-list");
+      settlementEl.innerHTML = settlements.length
+        ? settlements.map(s => `<div class="settlement-item">${s}</div>`).join("")
+        : `<div class="muted">Everything is evenly split!</div>`;
+
+      const listEl = document.getElementById("expense-list");
+      if (monthExpenses.length === 0) {
+        listEl.innerHTML = `<div class="muted">No expenses logged for this month yet.</div>`;
+      } else {
+        listEl.innerHTML = monthExpenses.map(e => `
+          <div class="row">
+            <div>
+              <strong>${escapeHtml(e.item)}</strong>
+              <div class="expense-meta">${escapeHtml(e.userName)} • ${escapeHtml(e.date)}</div>
+            </div>
+            <div class="expense-right">
+              <span class="amount-text">${formatINR(e.amount)}</span>
+              ${e.uid === currentUser?.uid ? `<button class="btn-danger btn-small" onclick="deleteExpense('${e.id}')">✕</button>` : ""}
+            </div>
+          </div>
+        `).join("");
+      }
+    }
+  </script>
+</body>
+</html>
