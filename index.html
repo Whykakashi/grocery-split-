@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Grocery Split (₹)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2322c55e'/%3E%3Cstop offset='100%25' stop-color='%2315803d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M21 24v-4a11 11 0 0 1 22 0v4' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='14' y='24' width='36' height='28' rx='7' fill='%23fff'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Arial,sans-serif' font-weight='800' font-size='21' fill='%2315803d'%3E%E2%82%B9%3C/text%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2322c55e'/%3E%3Cstop offset='100%25' stop-color='%2315803d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M21 24v-4a11 11 0 0 1 22 0v4' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='14' y='24' width='36' height='28' rx='7' fill='%23fff'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Arial,sans-serif' font-weight='800' font-size='21' fill='%2315803d'%3E%E2%82%B9%3C/text%3E%3C/svg%3E" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -45,12 +47,18 @@
     .container { max-width: 520px; margin: 0 auto; padding: 16px; }
 
     .card { background: var(--card); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+    .card-danger { border-color: var(--danger); }
     h1, h2, h3 { margin: 0 0 12px 0; }
     h1 { font-size: 1.35rem; }
     h2 { font-size: 1.05rem; color: var(--text); }
     h3 { font-size: 0.95rem; color: var(--text); }
     .muted { color: var(--muted); font-size: 0.85rem; }
     .hidden { display: none !important; }
+
+    /* Brand & Logo */
+    .brand-row { display: flex; align-items: center; gap: 10px; }
+    .app-logo { width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25); }
+    .app-logo-lg { width: 54px; height: 54px; border-radius: 14px; }
 
     /* Topbar */
     .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
@@ -70,6 +78,7 @@
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
     .btn-small { width: auto; padding: 6px 10px; font-size: 0.8rem; margin: 0; border-radius: 8px; }
     .btn-danger { background: var(--danger-soft); color: var(--danger); }
+    .btn-danger-solid { background: var(--danger); color: #fff; }
     .btn-edit { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
 
     /* Summary & Chart */
@@ -94,14 +103,26 @@
     .amount-text { font-weight: 700; font-size: 1rem; }
     .lock-tag { font-size: 0.72rem; color: var(--muted); }
 
+    /* Groups UI */
+    .member-check-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .member-check-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; }
+    .member-check-item input[type="checkbox"] { width: 18px; height: 18px; margin: 0; accent-color: var(--primary); flex-shrink: 0; }
+    .group-card-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin-bottom: 10px; cursor: pointer; }
+    .group-card-item:last-child { margin-bottom: 0; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .pill { background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+    .seg-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .seg-btn { margin: 0; padding: 9px; font-size: 0.88rem; }
+    .seg-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
     .error-msg { color: var(--danger); font-size: 0.85rem; margin-bottom: 10px; }
     .success-msg { color: #16a34a; font-size: 0.85rem; margin-bottom: 10px; }
     .row-flex { display: flex; gap: 8px; align-items: center; }
 
     /* Bottom Navigation */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); z-index: 50; }
-    .nav-btn { background: none; color: var(--muted); width: auto; margin: 0; padding: 6px 18px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.75rem; font-weight: 600; border-radius: 10px; }
-    .nav-btn span.nav-icon { font-size: 1.25rem; line-height: 1; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--nav-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 4px calc(8px + env(safe-area-inset-bottom)); z-index: 50; }
+    .nav-btn { background: none; color: var(--muted); flex: 1; margin: 0; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.72rem; font-weight: 600; border-radius: 10px; }
+    .nav-btn span.nav-icon { font-size: 1.2rem; line-height: 1; }
     .nav-btn.active { color: var(--primary); }
 
     /* Settings & Theme Swatches */
@@ -121,8 +142,25 @@
 
     <!-- AUTH SCREEN -->
     <div id="auth-view" class="card" style="margin-top: 24px;">
-      <h1 id="auth-title">🛒 Grocery Split</h1>
-      <p class="muted" style="margin-bottom: 16px;">Log in to track & split monthly groceries</p>
+      <div class="brand-row" style="margin-bottom: 10px;">
+        <svg class="app-logo app-logo-lg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGradAuth" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#22c55e"/>
+              <stop offset="100%" stop-color="#15803d"/>
+            </linearGradient>
+          </defs>
+          <rect width="64" height="64" rx="16" fill="url(#logoGradAuth)"/>
+          <path d="M21 24v-4a11 11 0 0 1 22 0v4" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+          <rect x="14" y="24" width="36" height="28" rx="7" fill="#ffffff"/>
+          <text x="32" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="21" fill="#15803d">₹</text>
+        </svg>
+        <div>
+          <h1 id="auth-title" style="margin:0;">Grocery Split</h1>
+          <p class="muted" style="margin:2px 0 0;">Track & split groceries effortlessly</p>
+        </div>
+      </div>
+
       <div id="auth-error" class="error-msg hidden"></div>
 
       <input type="text" id="auth-name" placeholder="Your Name (e.g., Sunny)" class="hidden" />
@@ -136,18 +174,29 @@
     <!-- MAIN APP SCREEN -->
     <div id="app-view" class="hidden">
       <div class="topbar">
-        <div class="user-chip">
-          <div class="avatar" id="topbar-avatar"></div>
+        <div class="brand-row">
+          <svg class="app-logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoGradTop" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#22c55e"/>
+                <stop offset="100%" stop-color="#15803d"/>
+              </linearGradient>
+            </defs>
+            <rect width="64" height="64" rx="16" fill="url(#logoGradTop)"/>
+            <path d="M21 24v-4a11 11 0 0 1 22 0v4" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+            <rect x="14" y="24" width="36" height="28" rx="7" fill="#ffffff"/>
+            <text x="32" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="21" fill="#15803d">₹</text>
+          </svg>
           <div>
-            <h1 style="margin:0; font-size:1.15rem;">🛒 Grocery Split</h1>
+            <h1 style="margin:0; font-size:1.15rem;">Grocery Split</h1>
             <div class="muted" style="font-size:0.8rem;">Hi, <strong id="current-user-name"></strong></div>
           </div>
         </div>
+        <div class="avatar" id="topbar-avatar"></div>
       </div>
 
       <!-- ================= PAGE 1: HOME ================= -->
       <div id="page-home">
-        <!-- Month Selector -->
         <div class="card" style="padding: 12px 16px;">
           <div class="row-flex">
             <label for="month-picker-home" style="font-weight:600; white-space:nowrap;">📅 Month:</label>
@@ -155,7 +204,6 @@
           </div>
         </div>
 
-        <!-- Add Expense Form -->
         <div class="card">
           <h2>➕ Add Grocery Item</h2>
           <input type="text" id="item-name" placeholder="What did you buy? (e.g., Milk, Sabzi)" />
@@ -166,7 +214,6 @@
           <button id="add-expense-btn">Add Expense</button>
         </div>
 
-        <!-- Monthly Summary & Chart -->
         <div class="card">
           <h2>📊 Monthly Summary</h2>
           <div class="summary-grid">
@@ -193,7 +240,83 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 2: HISTORY ================= -->
+      <!-- ================= PAGE 2: GROUPS ================= -->
+      <div id="page-groups" class="hidden">
+        <!-- Group List View -->
+        <div id="groups-list-view">
+          <div class="card">
+            <h2>👥 Create Custom Group</h2>
+            <p class="muted" style="margin-top:-6px; margin-bottom:10px;">Pick 2 or more people from your main group for separate splits (trips, snacks, bills).</p>
+            <input type="text" id="new-group-name" placeholder="Group name (e.g., Weekend Trip, Chicken Party)" />
+            <div class="muted" style="margin-bottom:6px; font-weight:600;">Select Members:</div>
+            <div id="group-member-checkboxes" class="member-check-list"></div>
+            <div id="group-create-msg" class="hidden"></div>
+            <button id="create-group-btn">Create Group</button>
+          </div>
+
+          <div class="card">
+            <h2>📂 Your Custom Groups</h2>
+            <div id="groups-list-container" class="muted">No custom groups yet. Create one above!</div>
+          </div>
+        </div>
+
+        <!-- Single Group Detail View -->
+        <div id="group-detail-view" class="hidden">
+          <div class="card" style="padding: 12px 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+              <button id="back-to-groups-btn" class="btn-secondary btn-small">← Back</button>
+              <strong id="detail-group-name" style="font-size:1.05rem; flex:1; text-align:center;"></strong>
+              <button id="delete-group-btn" class="btn-danger btn-small hidden">Delete</button>
+            </div>
+            <div id="detail-group-members" class="pill-row"></div>
+
+            <!-- All-Time vs By Month Toggle -->
+            <div class="seg-toggle">
+              <button id="group-mode-alltime" class="btn-secondary seg-btn active">♾️ All-Time</button>
+              <button id="group-mode-month" class="btn-secondary seg-btn">📅 By Month</button>
+            </div>
+            <input type="month" id="group-month-picker" class="hidden" style="margin:0;" />
+          </div>
+
+          <div class="card">
+            <h2>➕ Add Group Expense</h2>
+            <input type="text" id="group-item-name" placeholder="Item description" />
+            <div class="row-flex">
+              <input type="number" id="group-item-amount" placeholder="Amount (₹)" min="1" step="0.01" />
+              <input type="date" id="group-item-date" />
+            </div>
+            <button id="add-group-expense-btn">Add to Group</button>
+          </div>
+
+          <div class="card">
+            <h2 id="group-summary-title">📊 All-Time Summary</h2>
+            <div class="summary-grid">
+              <div class="stat-box">
+                <div class="stat-label">Group Total</div>
+                <div class="stat-value" id="group-total-spend">₹0</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Per Person Share</div>
+                <div class="stat-value" id="group-per-person-share">₹0</div>
+              </div>
+            </div>
+            <h3 style="margin-top:10px;">Spent by Member</h3>
+            <div id="group-person-breakdown" class="muted"></div>
+            <h3 style="margin-top:14px;">🤝 Who Owes Whom</h3>
+            <div id="group-settlement-list" class="muted">Everything is evenly split!</div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h2 style="margin:0;">🧾 Group Expenses</h2>
+              <span class="muted" style="font-size:0.74rem;">Edit: 15m • Delete: Anytime</span>
+            </div>
+            <div id="group-expense-list" class="muted">No expenses in this group yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 3: HISTORY ================= -->
       <div id="page-history" class="hidden">
         <div class="card" style="padding: 12px 16px;">
           <div class="row-flex" style="margin-bottom: 10px;">
@@ -212,15 +335,14 @@
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <h2 style="margin:0;">🧾 Monthly History</h2>
-            <span class="muted" style="font-size:0.75rem;">Editable for 15 min</span>
+            <span class="muted" style="font-size:0.74rem;">Edit: 15m • Delete: Anytime</span>
           </div>
           <div id="expense-list" class="muted">No expenses for this month yet.</div>
         </div>
       </div>
 
-      <!-- ================= PAGE 3: SETTINGS ================= -->
+      <!-- ================= PAGE 4: SETTINGS ================= -->
       <div id="page-settings" class="hidden">
-        <!-- Profile Picture & Name -->
         <div class="card">
           <h2>👤 Profile</h2>
           <div class="profile-center">
@@ -238,7 +360,6 @@
           <button id="save-name-btn">Save Name</button>
         </div>
 
-        <!-- Change Email -->
         <div class="card">
           <h2>📧 Change Email ID</h2>
           <p class="muted" style="margin-top:-6px; margin-bottom:10px;">Current: <strong id="settings-current-email"></strong></p>
@@ -248,7 +369,6 @@
           <button id="save-email-btn">Send Verification & Update Email</button>
         </div>
 
-        <!-- App Theme -->
         <div class="card">
           <h2>🎨 App Theme</h2>
           <div class="theme-toggle-row">
@@ -264,9 +384,17 @@
           </div>
         </div>
 
-        <!-- Logout -->
         <div class="card">
-          <button id="logout-btn" class="btn-danger" style="margin:0;">🚪 Log Out</button>
+          <button id="logout-btn" class="btn-secondary" style="margin:0;">🚪 Log Out</button>
+        </div>
+
+        <!-- Account Termination -->
+        <div class="card card-danger">
+          <h2 style="color: var(--danger);">⚠️ Terminate Account</h2>
+          <p class="muted" style="margin-top:-6px; margin-bottom:10px;">Permanently deletes your login and removes you from future monthly splits. This cannot be undone.</p>
+          <input type="password" id="terminate-password" placeholder="Enter your password to confirm" />
+          <div id="terminate-msg" class="hidden"></div>
+          <button id="terminate-account-btn" class="btn-danger-solid" style="margin:0;">Terminate My Account</button>
         </div>
       </div>
     </div>
@@ -277,6 +405,10 @@
     <button class="nav-btn active" data-page="home">
       <span class="nav-icon">🏠</span>
       <span>Home</span>
+    </button>
+    <button class="nav-btn" data-page="groups">
+      <span class="nav-icon">👥</span>
+      <span>Groups</span>
     </button>
     <button class="nav-btn" data-page="history">
       <span class="nav-icon">🧾</span>
@@ -310,7 +442,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-      signOut, onAuthStateChanged, updateProfile,
+      signOut, onAuthStateChanged, updateProfile, deleteUser,
       EmailAuthProvider, reauthenticateWithCredential, verifyBeforeUpdateEmail
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
@@ -350,10 +482,21 @@
     let monthExpenses = [];
     let selectedMonth = "";
     let selectedPersonFilter = "ALL";
-    let editingExpenseId = null;
+    let editingTarget = null; // { id, type: "main" | "group" }
     let spendChart = null;
+
+    // Groups State
+    let allGroups = [];
+    let activeGroupId = null;
+    let activeGroupExpenses = [];
+    let groupTimeMode = "ALL"; // "ALL" | "MONTH"
+    let groupSelectedMonth = "";
+
+    // Unsubscribers
     let unsubscribeExpenses = null;
     let unsubscribeUsers = null;
+    let unsubscribeGroups = null;
+    let unsubscribeGroupExpenses = null;
 
     // DOM Elements
     const authView = document.getElementById("auth-view");
@@ -377,6 +520,26 @@
     const personFilterEl = document.getElementById("person-filter");
     const filterSummaryEl = document.getElementById("filter-summary");
 
+    // Groups DOM
+    const groupsListView = document.getElementById("groups-list-view");
+    const groupDetailView = document.getElementById("group-detail-view");
+    const newGroupNameInput = document.getElementById("new-group-name");
+    const groupMemberCheckboxes = document.getElementById("group-member-checkboxes");
+    const groupCreateMsg = document.getElementById("group-create-msg");
+    const createGroupBtn = document.getElementById("create-group-btn");
+    const groupsListContainer = document.getElementById("groups-list-container");
+    const backToGroupsBtn = document.getElementById("back-to-groups-btn");
+    const detailGroupName = document.getElementById("detail-group-name");
+    const deleteGroupBtn = document.getElementById("delete-group-btn");
+    const detailGroupMembers = document.getElementById("detail-group-members");
+    const groupModeAllTimeBtn = document.getElementById("group-mode-alltime");
+    const groupModeMonthBtn = document.getElementById("group-mode-month");
+    const groupMonthPicker = document.getElementById("group-month-picker");
+    const groupItemName = document.getElementById("group-item-name");
+    const groupItemAmount = document.getElementById("group-item-amount");
+    const groupItemDate = document.getElementById("group-item-date");
+    const addGroupExpenseBtn = document.getElementById("add-group-expense-btn");
+
     // Settings DOM
     const settingsAvatar = document.getElementById("settings-avatar");
     const changePhotoBtn = document.getElementById("change-photo-btn");
@@ -391,6 +554,9 @@
     const saveEmailBtn = document.getElementById("save-email-btn");
     const emailMsg = document.getElementById("email-msg");
     const logoutBtn = document.getElementById("logout-btn");
+    const terminatePassword = document.getElementById("terminate-password");
+    const terminateMsg = document.getElementById("terminate-msg");
+    const terminateAccountBtn = document.getElementById("terminate-account-btn");
 
     // Edit Modal DOM
     const editModal = document.getElementById("edit-modal");
@@ -411,22 +577,16 @@
     }
 
     function getInitials(name) {
-      const clean = (name || "?").trim();
-      return clean.slice(0, 1).toUpperCase();
+      return ((name || "?").trim().slice(0, 1) || "?").toUpperCase();
     }
 
     function renderAvatarEl(el, name, photoURL) {
-      if (photoURL) {
-        el.innerHTML = `<img src="${photoURL}" alt="avatar" />`;
-      } else {
-        el.textContent = getInitials(name);
-      }
+      if (photoURL) el.innerHTML = `<img src="${photoURL}" alt="avatar" />`;
+      else el.textContent = getInitials(name);
     }
 
     function avatarHtml(name, photoURL, extraClass = "avatar-sm") {
-      if (photoURL) {
-        return `<div class="avatar ${extraClass}"><img src="${photoURL}" alt="" /></div>`;
-      }
+      if (photoURL) return `<div class="avatar ${extraClass}"><img src="${photoURL}" alt="" /></div>`;
       return `<div class="avatar ${extraClass}">${escapeHtml(getInitials(name))}</div>`;
     }
 
@@ -449,6 +609,69 @@
       return Math.max(0, EDIT_WINDOW_MS - (Date.now() - created));
     }
 
+    function calculateSettlements(people, share) {
+      const debtors = [];
+      const creditors = [];
+      people.forEach(p => {
+        const balance = p.spent - share;
+        if (balance < -0.5) debtors.push({ name: p.name, amount: Math.abs(balance) });
+        else if (balance > 0.5) creditors.push({ name: p.name, amount: balance });
+      });
+      debtors.sort((a, b) => b.amount - a.amount);
+      creditors.sort((a, b) => b.amount - a.amount);
+
+      const settlements = [];
+      let i = 0, j = 0;
+      while (i < debtors.length && j < creditors.length) {
+        const payAmount = Math.min(debtors[i].amount, creditors[j].amount);
+        if (payAmount >= 0.5) {
+          settlements.push(`<strong>${escapeHtml(debtors[i].name)}</strong> pays <strong>${escapeHtml(creditors[j].name)}</strong> ${formatINR(payAmount)}`);
+        }
+        debtors[i].amount -= payAmount;
+        creditors[j].amount -= payAmount;
+        if (debtors[i].amount < 0.5) i++;
+        if (creditors[j].amount < 0.5) j++;
+      }
+      return settlements;
+    }
+
+    function renderExpenseRow(e, type) {
+      const userObj = usersById[e.uid];
+      const displayName = userObj?.name || e.userName || "Member";
+      const photo = userObj?.photoURL || "";
+      const isOwner = e.uid === currentUser?.uid;
+      const remainingMs = getRemainingEditMs(e);
+      const canEdit = isOwner && remainingMs > 0;
+      const minsLeft = Math.ceil(remainingMs / 60000);
+
+      let actionHtml = "";
+      if (isOwner) {
+        const editPart = canEdit
+          ? `<button class="btn-edit btn-small" onclick="openEditModal('${e.id}','${type}')">✏️ Edit (${minsLeft}m)</button>`
+          : `<span class="lock-tag">🔒 Edit locked</span>`;
+        actionHtml = `
+          <div class="action-btns">
+            ${editPart}
+            <button class="btn-danger btn-small" onclick="deleteExpense('${e.id}','${type}')" title="Remove expense">🗑️ Remove</button>
+          </div>`;
+      }
+
+      return `
+        <div class="row">
+          <div class="row-left">
+            ${avatarHtml(displayName, photo)}
+            <div class="row-text">
+              <div class="row-title">${escapeHtml(e.item)}</div>
+              <div class="expense-meta">${escapeHtml(displayName)} • ${escapeHtml(e.date)}</div>
+            </div>
+          </div>
+          <div class="expense-right">
+            <span class="amount-text">${formatINR(e.amount)}</span>
+            ${actionHtml}
+          </div>
+        </div>`;
+    }
+
     // ==================== THEME ====================
     function applyTheme() {
       const mode = localStorage.getItem("gs_theme_mode") || "light";
@@ -463,28 +686,20 @@
       document.querySelectorAll(".swatch").forEach(s => {
         s.classList.toggle("active", s.dataset.accent === accent);
       });
-      if (spendChart) renderHome(); // refresh chart text color
+      if (spendChart) renderHome();
     }
 
-    document.getElementById("theme-light-btn").addEventListener("click", () => {
-      localStorage.setItem("gs_theme_mode", "light");
-      applyTheme();
-    });
-    document.getElementById("theme-dark-btn").addEventListener("click", () => {
-      localStorage.setItem("gs_theme_mode", "dark");
-      applyTheme();
-    });
+    document.getElementById("theme-light-btn").addEventListener("click", () => { localStorage.setItem("gs_theme_mode", "light"); applyTheme(); });
+    document.getElementById("theme-dark-btn").addEventListener("click", () => { localStorage.setItem("gs_theme_mode", "dark"); applyTheme(); });
     document.querySelectorAll(".swatch").forEach(btn => {
-      btn.addEventListener("click", () => {
-        localStorage.setItem("gs_theme_accent", btn.dataset.accent);
-        applyTheme();
-      });
+      btn.addEventListener("click", () => { localStorage.setItem("gs_theme_accent", btn.dataset.accent); applyTheme(); });
     });
     applyTheme();
 
     // ==================== NAVIGATION ====================
     const pages = {
       home: document.getElementById("page-home"),
+      groups: document.getElementById("page-groups"),
       history: document.getElementById("page-history"),
       settings: document.getElementById("page-settings")
     };
@@ -497,6 +712,10 @@
         btn.classList.toggle("active", btn.dataset.page === pageName);
       });
       if (pageName === "history") renderHistory();
+      if (pageName === "groups") {
+        if (activeGroupId) renderGroupDetail();
+        else renderGroupsList();
+      }
       window.scrollTo({ top: 0, behavior: "instant" });
     }
 
@@ -507,9 +726,12 @@
     // ==================== DATES & MONTH SYNC ====================
     const todayStr = getTodayString();
     selectedMonth = todayStr.slice(0, 7);
+    groupSelectedMonth = selectedMonth;
     monthPickerHome.value = selectedMonth;
     monthPickerHistory.value = selectedMonth;
+    groupMonthPicker.value = groupSelectedMonth;
     itemDateInput.value = todayStr;
+    groupItemDate.value = todayStr;
 
     function handleMonthChange(newMonth) {
       if (!newMonth) return;
@@ -543,11 +765,7 @@
           pendingSignUpName = name;
           const cred = await createUserWithEmailAndPassword(auth, email, password);
           await updateProfile(cred.user, { displayName: name });
-          await setDoc(doc(db, "users", cred.user.uid), {
-            uid: cred.user.uid,
-            name,
-            email: cred.user.email
-          }, { merge: true });
+          await setDoc(doc(db, "users", cred.user.uid), { uid: cred.user.uid, name, email: cred.user.email }, { merge: true });
           pendingSignUpName = null;
         } else {
           await signInWithEmailAndPassword(auth, email, password);
@@ -561,6 +779,13 @@
 
     logoutBtn.addEventListener("click", () => signOut(auth));
 
+    function cleanupListeners() {
+      if (unsubscribeExpenses) { unsubscribeExpenses(); unsubscribeExpenses = null; }
+      if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
+      if (unsubscribeGroups) { unsubscribeGroups(); unsubscribeGroups = null; }
+      if (unsubscribeGroupExpenses) { unsubscribeGroupExpenses(); unsubscribeGroupExpenses = null; }
+    }
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
@@ -568,14 +793,9 @@
         const snap = await getDoc(userRef);
         const existingData = snap.exists() ? snap.data() : {};
 
-        // Fix for display name race condition on signup
         const resolvedName = pendingSignUpName || existingData.name || user.displayName || user.email.split("@")[0];
         if (!existingData.name || existingData.email !== user.email) {
-          await setDoc(userRef, {
-            uid: user.uid,
-            name: resolvedName,
-            email: user.email
-          }, { merge: true });
+          await setDoc(userRef, { uid: user.uid, name: resolvedName, email: user.email }, { merge: true });
         }
         if (user.displayName !== resolvedName) {
           updateProfile(user, { displayName: resolvedName }).catch(() => {});
@@ -588,11 +808,12 @@
 
         listenToUsers();
         listenToMonthExpenses(selectedMonth);
+        listenToGroups();
       } else {
         currentUser = null;
         currentUserProfile = null;
-        if (unsubscribeExpenses) unsubscribeExpenses();
-        if (unsubscribeUsers) unsubscribeUsers();
+        activeGroupId = null;
+        cleanupListeners();
         appView.classList.add("hidden");
         bottomNav.classList.add("hidden");
         authView.classList.remove("hidden");
@@ -616,8 +837,11 @@
           syncUserUI();
         }
         populatePersonFilter();
+        renderGroupMemberCheckboxes();
         renderHome();
         renderHistory();
+        if (activeGroupId) renderGroupDetail();
+        else renderGroupsList();
       });
     }
 
@@ -629,9 +853,7 @@
       renderAvatarEl(topbarAvatar, name, photo);
       renderAvatarEl(settingsAvatar, name, photo);
       removePhotoBtn.classList.toggle("hidden", !photo);
-      if (document.activeElement !== settingsNameInput) {
-        settingsNameInput.value = name;
-      }
+      if (document.activeElement !== settingsNameInput) settingsNameInput.value = name;
       settingsCurrentEmail.textContent = currentUser.email;
     }
 
@@ -647,7 +869,32 @@
       });
     }
 
-    // ==================== ADD EXPENSE ====================
+    function listenToGroups() {
+      if (unsubscribeGroups) unsubscribeGroups();
+      unsubscribeGroups = onSnapshot(collection(db, "groups"), (snap) => {
+        allGroups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        allGroups.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+        if (activeGroupId && !allGroups.find(g => g.id === activeGroupId)) {
+          closeGroupDetail();
+        } else if (activeGroupId) {
+          renderGroupDetail();
+        } else {
+          renderGroupsList();
+        }
+      });
+    }
+
+    function listenToGroupExpenses(groupId) {
+      if (unsubscribeGroupExpenses) unsubscribeGroupExpenses();
+      const q = query(collection(db, "groupExpenses"), where("groupId", "==", groupId));
+      unsubscribeGroupExpenses = onSnapshot(q, (snap) => {
+        activeGroupExpenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        activeGroupExpenses.sort((a, b) => (b.date || "").localeCompare(a.date || "") || getExpenseCreatedMs(b) - getExpenseCreatedMs(a));
+        renderGroupDetail();
+      });
+    }
+
+    // ==================== ADD MAIN EXPENSE ====================
     addExpenseBtn.addEventListener("click", async () => {
       const item = itemNameInput.value.trim();
       const amount = parseFloat(itemAmountInput.value);
@@ -662,14 +909,9 @@
       try {
         const displayName = currentUserProfile?.name || currentUser.displayName || currentUser.email.split("@")[0];
         await addDoc(collection(db, "expenses"), {
-          item,
-          amount,
-          date,
-          month: date.slice(0, 7),
-          uid: currentUser.uid,
-          userName: displayName,
-          createdAtMs: Date.now(),
-          createdAt: serverTimestamp()
+          item, amount, date, month: date.slice(0, 7),
+          uid: currentUser.uid, userName: displayName,
+          createdAtMs: Date.now(), createdAt: serverTimestamp()
         });
         itemNameInput.value = "";
         itemAmountInput.value = "";
@@ -687,9 +929,7 @@
         peopleMap[u.uid] = { uid: u.uid, name: u.name, photoURL: u.photoURL || "", spent: 0 };
       });
       monthExpenses.forEach(e => {
-        if (!peopleMap[e.uid]) {
-          peopleMap[e.uid] = { uid: e.uid, name: e.userName || "Member", photoURL: "", spent: 0 };
-        }
+        if (!peopleMap[e.uid]) peopleMap[e.uid] = { uid: e.uid, name: e.userName || "Member", photoURL: "", spent: 0 };
         peopleMap[e.uid].spent += Number(e.amount || 0);
       });
 
@@ -701,7 +941,6 @@
       document.getElementById("total-spend").textContent = formatINR(totalSpend);
       document.getElementById("per-person-share").textContent = formatINR(share);
 
-      // Render Chart
       const chartContainer = document.getElementById("chart-container");
       const chartEmpty = document.getElementById("chart-empty");
       if (totalSpend <= 0) {
@@ -732,72 +971,253 @@
             maintainAspectRatio: false,
             cutout: "58%",
             plugins: {
-              legend: {
-                position: "bottom",
-                labels: { color: textColor, padding: 14, font: { size: 12, weight: "600" } }
-              },
-              tooltip: {
-                callbacks: {
-                  label: (ctx) => ` ${ctx.label}: ${formatINR(ctx.raw)}`
-                }
-              }
+              legend: { position: "bottom", labels: { color: textColor, padding: 14, font: { size: 12, weight: "600" } } },
+              tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${formatINR(ctx.raw)}` } }
             }
           }
         });
       }
 
-      // Per-person breakdown
       const breakdownEl = document.getElementById("person-breakdown");
-      if (people.length === 0) {
-        breakdownEl.innerHTML = `<div class="muted">No members found.</div>`;
-      } else {
-        breakdownEl.innerHTML = people.map(p => {
-          const diff = p.spent - share;
-          let statusHtml = `<span class="muted">Settled</span>`;
-          if (diff > 0.5) statusHtml = `<span class="badge-pos">Gets back ${formatINR(diff)}</span>`;
-          else if (diff < -0.5) statusHtml = `<span class="badge-neg">Owes ${formatINR(Math.abs(diff))}</span>`;
-          return `
-            <div class="row">
-              <div class="row-left">
-                ${avatarHtml(p.name, p.photoURL)}
-                <div class="row-text">
-                  <div class="row-title">${escapeHtml(p.name)}</div>
-                  <div class="expense-meta">${statusHtml}</div>
+      breakdownEl.innerHTML = people.length === 0
+        ? `<div class="muted">No members found.</div>`
+        : people.map(p => {
+            const diff = p.spent - share;
+            let statusHtml = `<span class="muted">Settled</span>`;
+            if (diff > 0.5) statusHtml = `<span class="badge-pos">Gets back ${formatINR(diff)}</span>`;
+            else if (diff < -0.5) statusHtml = `<span class="badge-neg">Owes ${formatINR(Math.abs(diff))}</span>`;
+            return `
+              <div class="row">
+                <div class="row-left">
+                  ${avatarHtml(p.name, p.photoURL)}
+                  <div class="row-text">
+                    <div class="row-title">${escapeHtml(p.name)}</div>
+                    <div class="expense-meta">${statusHtml}</div>
+                  </div>
                 </div>
-              </div>
-              <div class="amount-text">${formatINR(p.spent)}</div>
-            </div>`;
-        }).join("");
-      }
+                <div class="amount-text">${formatINR(p.spent)}</div>
+              </div>`;
+          }).join("");
 
-      // Who Owes Whom
-      const debtors = [];
-      const creditors = [];
-      people.forEach(p => {
-        const balance = p.spent - share;
-        if (balance < -0.5) debtors.push({ name: p.name, amount: Math.abs(balance) });
-        else if (balance > 0.5) creditors.push({ name: p.name, amount: balance });
-      });
-      debtors.sort((a, b) => b.amount - a.amount);
-      creditors.sort((a, b) => b.amount - a.amount);
-
-      const settlements = [];
-      let i = 0, j = 0;
-      while (i < debtors.length && j < creditors.length) {
-        const payAmount = Math.min(debtors[i].amount, creditors[j].amount);
-        if (payAmount >= 0.5) {
-          settlements.push(`<strong>${escapeHtml(debtors[i].name)}</strong> pays <strong>${escapeHtml(creditors[j].name)}</strong> ${formatINR(payAmount)}`);
-        }
-        debtors[i].amount -= payAmount;
-        creditors[j].amount -= payAmount;
-        if (debtors[i].amount < 0.5) i++;
-        if (creditors[j].amount < 0.5) j++;
-      }
-
-      const settlementEl = document.getElementById("settlement-list");
-      settlementEl.innerHTML = settlements.length
+      const settlements = calculateSettlements(people, share);
+      document.getElementById("settlement-list").innerHTML = settlements.length
         ? settlements.map(s => `<div class="settlement-item">${s}</div>`).join("")
         : `<div class="muted">Everything is evenly split!</div>`;
+    }
+
+    // ==================== CUSTOM GROUPS ====================
+    function renderGroupMemberCheckboxes() {
+      if (!allUsers.length) {
+        groupMemberCheckboxes.innerHTML = `<div class="muted">Loading members...</div>`;
+        return;
+      }
+      const prevChecked = new Set(Array.from(groupMemberCheckboxes.querySelectorAll("input:checked")).map(i => i.value));
+      groupMemberCheckboxes.innerHTML = allUsers.map(u => {
+        const checked = prevChecked.size ? prevChecked.has(u.uid) : (u.uid === currentUser?.uid);
+        return `
+          <label class="member-check-item">
+            <input type="checkbox" value="${escapeHtml(u.uid)}" ${checked ? "checked" : ""} />
+            ${avatarHtml(u.name, u.photoURL)}
+            <span style="font-weight:600;">${escapeHtml(u.name)}${u.uid === currentUser?.uid ? " (You)" : ""}</span>
+          </label>`;
+      }).join("");
+    }
+
+    createGroupBtn.addEventListener("click", async () => {
+      const name = newGroupNameInput.value.trim();
+      const memberUids = Array.from(groupMemberCheckboxes.querySelectorAll("input:checked")).map(i => i.value);
+      groupCreateMsg.classList.add("hidden");
+
+      if (!name) {
+        showStatus(groupCreateMsg, "Please enter a group name.", true);
+        return;
+      }
+      if (memberUids.length < 2) {
+        showStatus(groupCreateMsg, "Select at least 2 members for a custom group.", true);
+        return;
+      }
+
+      createGroupBtn.disabled = true;
+      try {
+        await addDoc(collection(db, "groups"), {
+          name,
+          memberUids,
+          createdBy: currentUser.uid,
+          createdAtMs: Date.now(),
+          createdAt: serverTimestamp()
+        });
+        newGroupNameInput.value = "";
+        showStatus(groupCreateMsg, `Group "${name}" created!`);
+      } catch (err) {
+        showStatus(groupCreateMsg, "Error creating group: " + err.message, true);
+      } finally {
+        createGroupBtn.disabled = false;
+      }
+    });
+
+    function renderGroupsList() {
+      const myGroups = allGroups.filter(g => Array.isArray(g.memberUids) && g.memberUids.includes(currentUser?.uid));
+      if (myGroups.length === 0) {
+        groupsListContainer.innerHTML = `<div class="muted">No custom groups yet. Create one above!</div>`;
+        return;
+      }
+      groupsListContainer.innerHTML = myGroups.map(g => {
+        const names = g.memberUids.map(uid => usersById[uid]?.name || "Member").join(", ");
+        return `
+          <div class="group-card-item" onclick="openGroupDetail('${g.id}')">
+            <div>
+              <div class="row-title">${escapeHtml(g.name)}</div>
+              <div class="expense-meta">${g.memberUids.length} members: ${escapeHtml(names)}</div>
+            </div>
+            <span style="font-weight:700; color:var(--primary);">Open →</span>
+          </div>`;
+      }).join("");
+    }
+
+    window.openGroupDetail = (groupId) => {
+      activeGroupId = groupId;
+      groupTimeMode = "ALL";
+      updateGroupTimeToggleUI();
+      groupsListView.classList.add("hidden");
+      groupDetailView.classList.remove("hidden");
+      listenToGroupExpenses(groupId);
+      renderGroupDetail();
+      window.scrollTo({ top: 0, behavior: "instant" });
+    };
+
+    function closeGroupDetail() {
+      activeGroupId = null;
+      activeGroupExpenses = [];
+      if (unsubscribeGroupExpenses) { unsubscribeGroupExpenses(); unsubscribeGroupExpenses = null; }
+      groupDetailView.classList.add("hidden");
+      groupsListView.classList.remove("hidden");
+      renderGroupsList();
+    }
+
+    backToGroupsBtn.addEventListener("click", closeGroupDetail);
+
+    function updateGroupTimeToggleUI() {
+      groupModeAllTimeBtn.classList.toggle("active", groupTimeMode === "ALL");
+      groupModeMonthBtn.classList.toggle("active", groupTimeMode === "MONTH");
+      groupMonthPicker.classList.toggle("hidden", groupTimeMode === "ALL");
+    }
+
+    groupModeAllTimeBtn.addEventListener("click", () => {
+      groupTimeMode = "ALL";
+      updateGroupTimeToggleUI();
+      renderGroupDetail();
+    });
+
+    groupModeMonthBtn.addEventListener("click", () => {
+      groupTimeMode = "MONTH";
+      updateGroupTimeToggleUI();
+      renderGroupDetail();
+    });
+
+    groupMonthPicker.addEventListener("change", (e) => {
+      groupSelectedMonth = e.target.value || selectedMonth;
+      renderGroupDetail();
+    });
+
+    deleteGroupBtn.addEventListener("click", async () => {
+      if (!activeGroupId) return;
+      if (!confirm("Delete this custom group? Its summary will be removed.")) return;
+      await deleteDoc(doc(db, "groups", activeGroupId));
+      closeGroupDetail();
+    });
+
+    addGroupExpenseBtn.addEventListener("click", async () => {
+      if (!activeGroupId) return;
+      const item = groupItemName.value.trim();
+      const amount = parseFloat(groupItemAmount.value);
+      const date = groupItemDate.value || getTodayString();
+
+      if (!item || isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid item name and amount.");
+        return;
+      }
+
+      addGroupExpenseBtn.disabled = true;
+      try {
+        const displayName = currentUserProfile?.name || currentUser.displayName || currentUser.email.split("@")[0];
+        await addDoc(collection(db, "groupExpenses"), {
+          groupId: activeGroupId,
+          item, amount, date, month: date.slice(0, 7),
+          uid: currentUser.uid, userName: displayName,
+          createdAtMs: Date.now(), createdAt: serverTimestamp()
+        });
+        groupItemName.value = "";
+        groupItemAmount.value = "";
+      } catch (err) {
+        alert("Error adding group expense: " + err.message);
+      } finally {
+        addGroupExpenseBtn.disabled = false;
+      }
+    });
+
+    function renderGroupDetail() {
+      const group = allGroups.find(g => g.id === activeGroupId);
+      if (!group) return;
+
+      detailGroupName.textContent = group.name;
+      deleteGroupBtn.classList.toggle("hidden", group.createdBy !== currentUser?.uid);
+
+      detailGroupMembers.innerHTML = group.memberUids.map(uid => {
+        const name = usersById[uid]?.name || "Former Member";
+        return `<span class="pill">${escapeHtml(name)}</span>`;
+      }).join("");
+
+      const filtered = groupTimeMode === "ALL"
+        ? activeGroupExpenses
+        : activeGroupExpenses.filter(e => e.month === groupSelectedMonth);
+
+      document.getElementById("group-summary-title").textContent =
+        groupTimeMode === "ALL" ? "📊 All-Time Summary" : `📊 Summary (${groupSelectedMonth})`;
+
+      const peopleMap = {};
+      group.memberUids.forEach(uid => {
+        const u = usersById[uid];
+        peopleMap[uid] = { uid, name: u?.name || "Member", photoURL: u?.photoURL || "", spent: 0 };
+      });
+      filtered.forEach(e => {
+        if (!peopleMap[e.uid]) peopleMap[e.uid] = { uid: e.uid, name: e.userName || "Member", photoURL: "", spent: 0 };
+        peopleMap[e.uid].spent += Number(e.amount || 0);
+      });
+
+      const people = Object.values(peopleMap);
+      const totalSpend = filtered.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+      const share = totalSpend / Math.max(people.length, 1);
+
+      document.getElementById("group-total-spend").textContent = formatINR(totalSpend);
+      document.getElementById("group-per-person-share").textContent = formatINR(share);
+
+      document.getElementById("group-person-breakdown").innerHTML = people.map(p => {
+        const diff = p.spent - share;
+        let statusHtml = `<span class="muted">Settled</span>`;
+        if (diff > 0.5) statusHtml = `<span class="badge-pos">Gets back ${formatINR(diff)}</span>`;
+        else if (diff < -0.5) statusHtml = `<span class="badge-neg">Owes ${formatINR(Math.abs(diff))}</span>`;
+        return `
+          <div class="row">
+            <div class="row-left">
+              ${avatarHtml(p.name, p.photoURL)}
+              <div class="row-text">
+                <div class="row-title">${escapeHtml(p.name)}</div>
+                <div class="expense-meta">${statusHtml}</div>
+              </div>
+            </div>
+            <div class="amount-text">${formatINR(p.spent)}</div>
+          </div>`;
+      }).join("");
+
+      const settlements = calculateSettlements(people, share);
+      document.getElementById("group-settlement-list").innerHTML = settlements.length
+        ? settlements.map(s => `<div class="settlement-item">${s}</div>`).join("")
+        : `<div class="muted">Everything is evenly split!</div>`;
+
+      const listEl = document.getElementById("group-expense-list");
+      listEl.innerHTML = filtered.length === 0
+        ? `<div class="muted">No expenses for this view yet.</div>`
+        : filtered.map(e => renderExpenseRow(e, "group")).join("");
     }
 
     // ==================== HISTORY RENDER & FILTER ====================
@@ -832,65 +1252,29 @@
       const filteredTotal = filtered.reduce((sum, e) => sum + Number(e.amount || 0), 0);
       filterSummaryEl.textContent = `${filtered.length} item${filtered.length === 1 ? "" : "s"} • Total: ${formatINR(filteredTotal)}`;
 
-      if (filtered.length === 0) {
-        listEl.innerHTML = `<div class="muted">No expenses found for this selection.</div>`;
-        return;
-      }
-
-      listEl.innerHTML = filtered.map(e => {
-        const userObj = usersById[e.uid];
-        const displayName = userObj?.name || e.userName || "Member";
-        const photo = userObj?.photoURL || "";
-        const isOwner = e.uid === currentUser?.uid;
-        const remainingMs = getRemainingEditMs(e);
-        const canEdit = isOwner && remainingMs > 0;
-        const minsLeft = Math.ceil(remainingMs / 60000);
-
-        let actionHtml = "";
-        if (canEdit) {
-          actionHtml = `
-            <div class="action-btns">
-              <button class="btn-edit btn-small" onclick="openEditModal('${e.id}')">✏️ Edit (${minsLeft}m)</button>
-              <button class="btn-danger btn-small" onclick="deleteExpense('${e.id}')">✕</button>
-            </div>`;
-        } else if (isOwner) {
-          actionHtml = `<span class="lock-tag">🔒 Locked</span>`;
-        }
-
-        return `
-          <div class="row">
-            <div class="row-left">
-              ${avatarHtml(displayName, photo)}
-              <div class="row-text">
-                <div class="row-title">${escapeHtml(e.item)}</div>
-                <div class="expense-meta">${escapeHtml(displayName)} • ${escapeHtml(e.date)}</div>
-              </div>
-            </div>
-            <div class="expense-right">
-              <span class="amount-text">${formatINR(e.amount)}</span>
-              ${actionHtml}
-            </div>
-          </div>`;
-      }).join("");
+      listEl.innerHTML = filtered.length === 0
+        ? `<div class="muted">No expenses found for this selection.</div>`
+        : filtered.map(e => renderExpenseRow(e, "main")).join("");
     }
 
     // Refresh 15-minute edit timers every 30 seconds
     setInterval(() => {
-      if (currentUser && !pages.history.classList.contains("hidden")) {
-        renderHistory();
-      }
+      if (!currentUser) return;
+      if (!pages.history.classList.contains("hidden")) renderHistory();
+      if (!pages.groups.classList.contains("hidden") && activeGroupId) renderGroupDetail();
     }, 30000);
 
-    // ==================== EDIT & DELETE (15-MIN RULE) ====================
-    window.openEditModal = (id) => {
-      const exp = monthExpenses.find(e => e.id === id);
+    // ==================== EDIT (15-MIN) & DELETE (ANYTIME) ====================
+    window.openEditModal = (id, type) => {
+      const list = type === "group" ? activeGroupExpenses : monthExpenses;
+      const exp = list.find(e => e.id === id);
       if (!exp) return;
       if (getRemainingEditMs(exp) <= 0) {
         alert("This expense can no longer be edited (15-minute window expired).");
-        renderHistory();
+        if (type === "group") renderGroupDetail(); else renderHistory();
         return;
       }
-      editingExpenseId = id;
+      editingTarget = { id, type };
       editItemName.value = exp.item;
       editItemAmount.value = exp.amount;
       editItemDate.value = exp.date;
@@ -899,12 +1283,15 @@
     };
 
     editCancelBtn.addEventListener("click", () => {
-      editingExpenseId = null;
+      editingTarget = null;
       editModal.classList.add("hidden");
     });
 
     editSaveBtn.addEventListener("click", async () => {
-      const exp = monthExpenses.find(e => e.id === editingExpenseId);
+      if (!editingTarget) return;
+      const { id, type } = editingTarget;
+      const list = type === "group" ? activeGroupExpenses : monthExpenses;
+      const exp = list.find(e => e.id === id);
       if (!exp) return;
 
       if (getRemainingEditMs(exp) <= 0) {
@@ -923,13 +1310,9 @@
 
       editSaveBtn.disabled = true;
       try {
-        await updateDoc(doc(db, "expenses", editingExpenseId), {
-          item,
-          amount,
-          date,
-          month: date.slice(0, 7)
-        });
-        editingExpenseId = null;
+        const colName = type === "group" ? "groupExpenses" : "expenses";
+        await updateDoc(doc(db, colName, id), { item, amount, date, month: date.slice(0, 7) });
+        editingTarget = null;
         editModal.classList.add("hidden");
       } catch (err) {
         showStatus(editError, "Error updating: " + err.message, true);
@@ -938,25 +1321,22 @@
       }
     });
 
-    window.deleteExpense = async (id) => {
-      const exp = monthExpenses.find(e => e.id === id);
-      if (!exp || getRemainingEditMs(exp) <= 0) {
-        alert("This expense can no longer be deleted (15-minute window expired).");
-        renderHistory();
+    window.deleteExpense = async (id, type) => {
+      const list = type === "group" ? activeGroupExpenses : monthExpenses;
+      const exp = list.find(e => e.id === id);
+      if (!exp || exp.uid !== currentUser?.uid) {
+        alert("Only the person who added this expense can remove it.");
         return;
       }
-      if (!confirm("Delete this entry?")) return;
-      await deleteDoc(doc(db, "expenses", id));
+      if (!confirm(`Remove "${exp.item}" (${formatINR(exp.amount)})?`)) return;
+      const colName = type === "group" ? "groupExpenses" : "expenses";
+      await deleteDoc(doc(db, colName, id));
     };
 
     // ==================== SETTINGS ACTIONS ====================
-    // 1. Save Name
     saveNameBtn.addEventListener("click", async () => {
       const newName = settingsNameInput.value.trim();
-      if (!newName) {
-        showStatus(nameMsg, "Name cannot be empty.", true);
-        return;
-      }
+      if (!newName) { showStatus(nameMsg, "Name cannot be empty.", true); return; }
       saveNameBtn.disabled = true;
       try {
         await updateProfile(currentUser, { displayName: newName });
@@ -969,7 +1349,6 @@
       }
     });
 
-    // 2. Profile Picture (Compressed Data URL -> Firestore)
     changePhotoBtn.addEventListener("click", () => photoInput.click());
 
     photoInput.addEventListener("change", (e) => {
@@ -985,11 +1364,8 @@
           canvas.height = size;
           const ctx = canvas.getContext("2d");
           const minSide = Math.min(img.width, img.height);
-          const sx = (img.width - minSide) / 2;
-          const sy = (img.height - minSide) / 2;
-          ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+          ctx.drawImage(img, (img.width - minSide) / 2, (img.height - minSide) / 2, minSide, minSide, 0, 0, size, size);
           const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
-
           try {
             await setDoc(doc(db, "users", currentUser.uid), { photoURL: dataUrl }, { merge: true });
           } catch (err) {
@@ -1006,7 +1382,6 @@
       await setDoc(doc(db, "users", currentUser.uid), { photoURL: "" }, { merge: true });
     });
 
-    // 3. Change Email (Requires password re-auth + email verification link)
     saveEmailBtn.addEventListener("click", async () => {
       const newEmail = settingsNewEmail.value.trim();
       const currentPass = settingsCurrentPassword.value;
@@ -1026,6 +1401,34 @@
         showStatus(emailMsg, err.message.replace("Firebase: ", ""), true);
       } finally {
         saveEmailBtn.disabled = false;
+      }
+    });
+
+    // Terminate Account
+    terminateAccountBtn.addEventListener("click", async () => {
+      const pass = terminatePassword.value;
+      terminateMsg.classList.add("hidden");
+      if (!pass) {
+        showStatus(terminateMsg, "Please enter your password to confirm account termination.", true);
+        return;
+      }
+      if (!confirm("Are you sure you want to permanently terminate your account? You will be logged out and removed from future splits.")) {
+        return;
+      }
+
+      terminateAccountBtn.disabled = true;
+      try {
+        const cred = EmailAuthProvider.credential(currentUser.email, pass);
+        await reauthenticateWithCredential(currentUser, cred);
+        const uid = currentUser.uid;
+        cleanupListeners();
+        await deleteDoc(doc(db, "users", uid));
+        await deleteUser(currentUser);
+        terminatePassword.value = "";
+      } catch (err) {
+        showStatus(terminateMsg, err.message.replace("Firebase: ", ""), true);
+      } finally {
+        terminateAccountBtn.disabled = false;
       }
     });
   </script>
